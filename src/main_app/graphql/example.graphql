@@ -1,0 +1,6 @@
+{
+  someQuery {
+    id
+    someField
+  }
+}
