@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/client'
 
 import client from 'services/graphql/client'
 
-const exampleQuery = loader('./graphql/example.graphql')
+const exampleQuery = loader('./graphql/currentUser.graphql')
 
 function App () {
   const { loading, error, data } = useQuery(exampleQuery, { client })
