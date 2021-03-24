@@ -1,12 +1,11 @@
-import { useState } from 'react'
 import { loader } from 'graphql.macro'
 import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
-import { useMutation, Mutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 
 import client from 'services/graphql/client'
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+import classes from './index.module.scss'
 
 const exampleMutation = loader('../../graphql/createUser.graphql')
 
@@ -27,74 +26,61 @@ const SignupSchema = Yup.object().shape({
 })
 
 const SignUp = () => {
-  const [state, setState] = useState ({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: ""
-  })
-  const { loading, error, data } = useMutation(exampleMutation, { client })
-  console.log(loading, error, data)
+  const [runExampleMutation] = useMutation(exampleMutation, { client })
 
   return (
-  <div>
-    <h1>Sign Up</h1>
-    <Formik
-      initialValues={{
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: ''
-      }}
-      validationSchema={SignupSchema}
-      onSubmit={async (values, actions) => {
-        await sleep(500)
-        alert(JSON.stringify(values, null, 2))
-        actions.setSubmitting(false)
-      }}
-    >
-      {({ isSubmitting, errors, touched }) => (
-        <Form onSubmit={e => e.preventDefault()}>
+    <div>
+      <h1>Sign Up</h1>
+      <Formik
+        initialValues={{
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: ''
+        }}
+        validationSchema={SignupSchema}
+        onSubmit= {async (values, { setSubmitting }) => {
+          try {
+            const { data } = await runExampleMutation({ variables: values })
+            alert(JSON.stringify(data))
+          } catch (err) {
+            alert(err.mesage)
+          } finally {
+            setSubmitting(false)
+          }
+        }}
+      >
+        {({ isSubmitting, errors, touched }) => (
+          <Form>
 
-          <label htmlFor="firstName">First Name</label>
-          <Field name="firstName" value={state.firstName} onChange={e => setState({ firstName: e.target.value })} />
-          {errors.firstName && touched.firstName ? (
-            <div>{errors.firstName}</div>
-          ) : null}
-          <ErrorMessage name="firstName" />
+            <label htmlFor='firstName'>First Name</label>
+            <Field name='firstName' className={classes.field} />
+            {errors.firstName && touched.firstName ? (
+              <div>{errors.firstName}</div>
+            ) : null}
+            <ErrorMessage name='firstName' />
 
-          <label htmlFor="lastName">Last Name</label>
-          <Field name="lastName" value={state.lastName} onChange={e => setState({ lastName: e.target.value })} />
-          {errors.lastName && touched.lastName ? (
-            <div>{errors.lastName}</div>
-          ) : null}
-          <ErrorMessage name="lastName" />
+            <label htmlFor='lastName'>Last Name</label>
+            <Field name='lastName' className={classes.field} />
+            {errors.lastName && touched.lastName ? (
+              <div>{errors.lastName}</div>
+            ) : null}
+            <ErrorMessage name='lastName' />
 
-          <label htmlFor="email">Email</label>
-          <Field name="email" type="email" value={state.email} onChange={e => setState({ email: e.target.value })} />
-          {errors.email && touched.email ? <div>{errors.email}</div> : null}
-          <ErrorMessage name="email" />
+            <label htmlFor='email'>Email</label>
+            <Field name='email' type='email' className={classes.field} />
+            {errors.email && touched.email ? <div>{errors.email}</div> : null}
+            <ErrorMessage name='email' />
 
-          <label htmlFor='password'>Password</label>
-          <Field name='password' type='password' value={state.password} onChange={e => this.state({ password: e.target.value })} />
+            <label htmlFor='password'>Password</label>
+            <Field name='password' type='password' className={classes.field} />
 
-          <Mutation mutation={data}>
-            {mutation => (
-              <button 
-                onclick={() =>
-                  mutation({
-                    variables: {
-                      input: state
-                    }
-                  })
-                }  
-                type='submit' disabled={isSubmitting}>Submit</button>)}
-          </Mutation>
-        </Form>
-      )}
-    </Formik>
-  </div>
-)
+            <button type='submit' disabled={isSubmitting}>Submit</button>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  )
 }
 
 export default SignUp
