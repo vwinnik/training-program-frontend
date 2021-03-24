@@ -27,6 +27,16 @@ const SignupSchema = Yup.object().shape({
 
 const SignUp = () => {
   const [runExampleMutation] = useMutation(exampleMutation, { client })
+  const onSubmit = async (values, { setSubmitting }) => {
+    try {
+      const { data } = await runExampleMutation({ variables: values })
+      window.alert(JSON.stringify(data))
+    } catch (err) {
+      window.alert(err.mesage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div>
@@ -39,36 +49,26 @@ const SignUp = () => {
           password: ''
         }}
         validationSchema={SignupSchema}
-        onSubmit= {async (values, { setSubmitting }) => {
-          try {
-            const { data } = await runExampleMutation({ variables: values })
-            alert(JSON.stringify(data))
-          } catch (err) {
-            alert(err.mesage)
-          } finally {
-            setSubmitting(false)
-          }
-        }}
+        onSubmit={onSubmit}
       >
         {({ isSubmitting, errors, touched }) => (
           <Form>
 
             <label htmlFor='firstName'>First Name</label>
             <Field name='firstName' className={classes.field} />
-            {errors.firstName && touched.firstName ? (
-              <div>{errors.firstName}</div>
-            ) : null}
+
+            {errors.firstName && touched.firstName ? (<div>{errors.firstName}</div>) : null}
             <ErrorMessage name='firstName' />
 
             <label htmlFor='lastName'>Last Name</label>
             <Field name='lastName' className={classes.field} />
-            {errors.lastName && touched.lastName ? (
-              <div>{errors.lastName}</div>
-            ) : null}
+
+            {errors.lastName && touched.lastName ? (<div>{errors.lastName}</div>) : null}
             <ErrorMessage name='lastName' />
 
             <label htmlFor='email'>Email</label>
             <Field name='email' type='email' className={classes.field} />
+
             {errors.email && touched.email ? <div>{errors.email}</div> : null}
             <ErrorMessage name='email' />
 
